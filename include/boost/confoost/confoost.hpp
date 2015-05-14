@@ -17,42 +17,40 @@
 #include <tuple>
 #include <vector>
 
+#include <boost/any.hpp>
 
-// TODO : implement this or find an alternative (tree nodes for our schema)
-struct confoost_node {
-    std::string id;
-    confoost_node** children;
-    confoost_node() {};
-};
-
+using retrieve_t = std::function< std::tuple<bool, boost::any>(boost::any, std::string) >;
 
 // This is what we discussed as common representation (schema whatever) of our configuration
-template<typename N>
 class confoost_config {
 private:
     bool is_valid;
-    N* root;
+    boost::any options;
+
+    retrieve_t retriever;
 
 public:
-    confoost_config() : is_valid(false) {};
+    confoost_config() : is_valid(false) {
+        retriever = [] (boost::any, std::string path) { return std::make_tuple(false, boost::any()); };
+    };
 
     bool valid() const { return is_valid; };
     void validate() { is_valid = true; };
     void invalidate() { is_valid = false; };
 
-    void set(confoost_config source) {
-        root = std::move(source.root);
+    void set(confoost_config&& source) {
+        options = std::move(source.options);
+        set_retriever(source.retriever);
         is_valid = true;
     }
+
+    void set_retriever(retrieve_t r) { retriever = r; };
 
     template<typename T>
     std::tuple<bool, T> retrieve(std::string path) const {
         std::cout << "Retrieving: " << path << std::endl;
         if(is_valid) {
-            // TODO : below
-            // crawl root
-            // if found         return std::make_tuple(true, found_value);
-            // if not found     return std::make_tuple(false, T());
+            return std::make_tuple(false, T());/* TODO: add boost::any to T cast here */ // retriever(options, path);
         }
         return std::make_tuple(false, T());
     };
@@ -117,7 +115,11 @@ template<typename T>
 parser_t<T> xml_parser(std::string filename) {
     return [=]() {
         std::cout << "Parsing XML file: " << filename << std::endl;
-        return T();
+        auto config = T();
+        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
+            return std::make_tuple(false, T());
+        });
+        return config;
     };
 };
 
@@ -126,7 +128,11 @@ template<typename T>
 parser_t<T> json_parser(std::string filename) {
     return [=]() {
         std::cout << "Parsing JSON file: " << filename << std::endl;
-        return T();
+        auto config = T();
+        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
+            return std::make_tuple(false, T());
+        });
+        return config;
     };
 };
 
@@ -135,7 +141,11 @@ template<typename T>
 parser_t<T> ini_parser(std::string filename) {
     return [=]() {
         std::cout << "Parsing INI file: " << filename << std::endl;
-        return T();
+        auto config = T();
+        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
+            return std::make_tuple(false, T());
+        });
+        return config;
     };
 };
 
@@ -144,7 +154,11 @@ template<typename T>
 parser_t<T> cli_parser(const int& argc, char** argv) {
     return [&]() {
         std::cout << "Parsing command line..." << std::endl;
-        return T();
+        auto config = T();
+        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
+            return std::make_tuple(false, T());
+        });
+        return config;
     };
 };
 
