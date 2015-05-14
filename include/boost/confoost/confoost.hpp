@@ -34,7 +34,7 @@ public:
         retriever = [] (boost::any, std::string path) { return std::make_tuple(false, boost::any()); };
     };
 
-    bool valid() const { return is_valid; };
+    auto valid() const { return is_valid; };
     void validate() { is_valid = true; };
     void invalidate() { is_valid = false; };
 
@@ -47,10 +47,12 @@ public:
     void set_retriever(retrieve_t r) { retriever = r; };
 
     template<typename T>
-    std::tuple<bool, T> retrieve(std::string path) const {
+    auto retrieve(std::string path) const {
         std::cout << "Retrieving: " << path << std::endl;
         if(is_valid) {
-            return std::make_tuple(false, T());/* TODO: add boost::any to T cast here */ // retriever(options, path);
+            return std::make_tuple(false, T());
+            // TODO : below is the real implementation, above is a temporary replacement for testing
+            //return boost::any_cast<std::tuple<bool, T>>(retriever(options, path));
         }
         return std::make_tuple(false, T());
     };
@@ -75,7 +77,7 @@ private:
 
 public:
     // We can add as many parsers as we want to our configuration manager
-    source_t& add_parser(parser_t<C> parse) {
+    auto& add_parser(parser_t<C> parse) {
         // Every new parser become a source with an empty cache
         auto cache = std::make_shared<C>();
 
