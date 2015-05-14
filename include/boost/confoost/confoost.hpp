@@ -98,8 +98,9 @@ public:
     // When we look for a key, we ask our sources
     template<typename T>
     T retrieve(std::string path) const {
-        for (auto&& get_source : sources) {
-            auto source = get_source();
+        // because we added to the back, we should search backwards
+        for (auto i = sources.rbegin(); i != sources.rend(); ++i) {
+            auto& source = *i;
             auto response = source. template retrieve<T> (path);
 
             // As soon as we find a result, we return it
