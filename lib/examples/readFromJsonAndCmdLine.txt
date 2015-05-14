@@ -1,0 +1,25 @@
+I want to read configuration from a json file and possibly override it from the
+command line. I also want to specify defaults in my code. The parameters can
+specify a server and port, and an arbitrary number of motors to control and
+velocity limits.
+
+Say for example my json file would look like this if I specified all arguments
+-------------------------------
+{
+    "server":"192.168.10.12",
+    "port":"8080",
+    "motors": [
+        {"name":"shoulder", "maxVel":2.1},
+        {"name":"elbow", "maxVel":2.1},
+        {"name":"gripper", "maxVel":0.5}
+    ]
+}
+------------------------------------------------
+
+At the command line, I would specify the same information
+$ myCmd --server 192.168.10.12 --port 8080 --motor shoulder 2.1 --motor elbow 2.1 --motor gripper 0.5
+
+
+Show an example of how to write the code to read in both the json file and the
+command line arguments with the command line arguments overriding the json
+values.
