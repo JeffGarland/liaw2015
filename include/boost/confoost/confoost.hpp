@@ -100,7 +100,7 @@ public:
     T retrieve(std::string path) const {
         // because we added to the back, we should search backwards
         for (auto i = sources.rbegin(); i != sources.rend(); ++i) {
-            auto& source = *i;
+            auto source = (*i)();
             auto response = source. template retrieve<T> (path);
 
             // As soon as we find a result, we return it
