@@ -19,7 +19,7 @@
 
 #include <boost/any.hpp>
 
-using retrieve_t = std::function< std::tuple<bool, boost::any>(boost::any, std::string) >;
+using retrieve_t = std::function< std::tuple<bool, boost::any>(boost::any&, std::string) >;
 
 // This is what we discussed as common representation (schema whatever) of our configuration
 class confoost_config {
@@ -31,7 +31,7 @@ private:
 
 public:
     confoost_config() : is_valid(false) {
-        retriever = [] (boost::any, std::string path) { return std::make_tuple(false, boost::any()); };
+        retriever = [] (boost::any&, std::string path) { return std::make_tuple(false, boost::any()); };
     };
 
     auto valid() const { return is_valid; };
@@ -117,10 +117,16 @@ template<typename T>
 parser_t<T> xml_parser(std::string filename) {
     return [=]() {
         std::cout << "Parsing XML file: " << filename << std::endl;
+
+        // Create inital config
         auto config = T();
-        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
-            return std::make_tuple(false, T());
+
+        // Set retrieve policy
+        config.set_retriever([] (boost::any& tree, std::string path) -> std::tuple<bool, boost::any> {
+            // Second parameter in tuple can be of any type (early type check)
+            return std::make_tuple(false, boost::any());
         });
+
         return config;
     };
 };
@@ -130,10 +136,16 @@ template<typename T>
 parser_t<T> json_parser(std::string filename) {
     return [=]() {
         std::cout << "Parsing JSON file: " << filename << std::endl;
+
+        // Create inital config
         auto config = T();
-        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
-            return std::make_tuple(false, T());
+
+        // Set retrieve policy
+        config.set_retriever([] (boost::any& tree, std::string path) -> std::tuple<bool, boost::any> {
+            // Second parameter in tuple can be of any type (early type check)
+            return std::make_tuple(false, boost::any());
         });
+
         return config;
     };
 };
@@ -143,10 +155,16 @@ template<typename T>
 parser_t<T> ini_parser(std::string filename) {
     return [=]() {
         std::cout << "Parsing INI file: " << filename << std::endl;
+        
+        // Create inital config
         auto config = T();
-        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
-            return std::make_tuple(false, T());
+
+        // Set retrieve policy
+        config.set_retriever([] (boost::any& tree, std::string path) -> std::tuple<bool, boost::any> {
+            // Second parameter in tuple can be of any type (early type check)
+            return std::make_tuple(false, boost::any());
         });
+
         return config;
     };
 };
@@ -156,10 +174,16 @@ template<typename T>
 parser_t<T> cli_parser(const int& argc, char** argv) {
     return [&]() {
         std::cout << "Parsing command line..." << std::endl;
+        
+        // Create inital config
         auto config = T();
-        config.set_retriever([] (boost::any tree, std::string path) -> std::tuple<bool, boost::any> {
-            return std::make_tuple(false, T());
+
+        // Set retrieve policy
+        config.set_retriever([] (boost::any& tree, std::string path) -> std::tuple<bool, boost::any> {
+            // Second parameter in tuple can be of any type (early type check)
+            return std::make_tuple(false, boost::any());
         });
+
         return config;
     };
 };
